@@ -1,6 +1,6 @@
 # Sayon for Visual Studio Code
 
-Editing support for the [Sayon](https://github.com/Omnifex-Studio/sayon) programming language:
+Editing support for the [Sayon](https://github.com/sayon-lang/sayon) programming language:
 
 - Syntax highlighting, including expressions inside string interpolation
 - The Sayon icon for `.sayon` files
@@ -12,18 +12,28 @@ The language server comes with Sayon: the extension runs the program the setting
 
 ## Installing from the repository
 
-From the repository, package the extension and install it:
+Package the extension and install it:
 
 ```sh
-python scripts/vscode_package.py
-code --install-extension target/editor/sayon-0.0.1.vsix
+python scripts/package.py
+code --install-extension out/sayon-0.0.1.vsix
 ```
 
-Or, from this directory, with the `vsce` tool:
+Or with the `vsce` tool:
 
 ```sh
 npx @vscode/vsce package
 code --install-extension sayon-0.0.1.vsix
 ```
 
-Or copy this directory into your VS Code extensions folder (`~/.vscode/extensions/sayon`) and restart VS Code.
+## Testing
+
+```sh
+node test/client.cjs
+```
+
+It runs the extension's client in Node against `sayon lsp`, with a stand-in for the part of VS Code's API the extension uses: a document opens, its diagnostics arrive, and the extension's providers answer. It uses the `sayon` that `SAYON` names, or else the one on the `PATH`. The tests of [sayon-lang/sayon](https://github.com/sayon-lang/sayon) run it too, with the `sayon` they build, when this repository is checked out beside it as `../sayon-vscode`.
+
+## License
+
+[Apache License, Version 2.0, with LLVM's exception](LICENSE), as Sayon.
