@@ -1,16 +1,16 @@
 # Sayon for Visual Studio Code
 
-Editing support for the [Sayon](https://github.com/sayon-lang/sayon) programming language:
+Support for writing [Sayon](https://github.com/sayon-lang/sayon) in VS Code.
 
-- Syntax highlighting, including expressions inside string interpolation
-- The Sayon icon for `.sayon` files
-- Comment toggling (`#` for lines, `##` for blocks), bracket matching, and auto-closing pairs
-- Indentation after block headers, with four spaces and LF line endings by default
-- From Sayon's language server, `sayon lsp`: errors and warnings as you type, hover with signatures and doc comments, Go to Definition, Find All References, Rename Symbol, Format Document, parameter hints as you write a call, and completion that fits the place: what an argument's type takes first, a structure's fields, an enum's variants after `case`, types after `:`, module paths in imports, and standard modules with their imports, functions with placeholders for their arguments
+- Syntax highlighting, including the expressions inside string interpolation.
+- The Sayon icon on `.sayon` files.
+- Comment toggling (`#` for a line, `##` for a block), bracket matching, and auto-closing pairs.
+- Indentation after a block's first line, with four spaces and LF line endings by default.
+- Everything Sayon's language server offers: errors and warnings as you type, hover with signatures and doc comments, Go to Definition, Find All References, Rename Symbol, Format Document, parameter hints while you write a call, and completion that knows where you are (the fields of a structure, an enum's variants after `case`, types after `:`, module paths in imports, and functions with placeholders for their arguments).
 
-The language server comes with Sayon: the extension runs the program the setting `sayon.path` names, or else `sayon` from the `PATH`, or else the one Sayon's setup installed, as when VS Code was already open while it ran. **Sayon: Restart the Language Server** starts it again, as after updating Sayon. The extension has no dependencies of its own.
+The language server is part of Sayon itself, `sayon lsp`, so the extension needs nothing else. It runs the `sayon` named by the `sayon.path` setting, or else the one on your `PATH`, or else the one Sayon's installer put in place (which helps when VS Code was already open during the install). After updating Sayon, run **Sayon: Restart the Language Server**.
 
-## Installing from the repository
+## Installing from this repository
 
 Package the extension and install it:
 
@@ -19,7 +19,7 @@ python scripts/package.py
 code --install-extension out/sayon-0.0.1.vsix
 ```
 
-Or with the `vsce` tool:
+Or with `vsce`:
 
 ```sh
 npx @vscode/vsce package
@@ -32,8 +32,8 @@ code --install-extension sayon-0.0.1.vsix
 node test/client.cjs
 ```
 
-It runs the extension's client in Node against `sayon lsp`, with a stand-in for the part of VS Code's API the extension uses: a document opens, its diagnostics arrive, and the extension's providers answer. It uses the `sayon` that `SAYON` names, or else the one on the `PATH`. The tests of [sayon-lang/sayon](https://github.com/sayon-lang/sayon) run it too, with the `sayon` they build, when this repository is checked out beside it as `../sayon-vscode`.
+This runs the extension's client in Node against a real `sayon lsp`, with a small stand-in for the parts of VS Code's API the extension uses: it opens a document, waits for its diagnostics, and asks each provider for answers. It uses the `sayon` that `SAYON` names, or else the one on your `PATH`. The tests in [sayon-lang/sayon](https://github.com/sayon-lang/sayon) run it too, with the `sayon` they just built, when this repository is checked out next to it as `../sayon-vscode`.
 
 ## License
 
-[Apache License, Version 2.0, with LLVM's exception](LICENSE), as Sayon.
+[Apache License 2.0 with LLVM's exception](LICENSE), the same as Sayon.
