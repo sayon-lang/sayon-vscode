@@ -1,8 +1,10 @@
-// Sayon's extension for VS Code. Highlighting comes from the grammar; the
-// rest comes from Sayon's language server, `sayon lsp`, which this starts
-// and talks to in the language server protocol itself, with no library
-// between them: diagnostics, hover, definitions, references, renaming,
-// completion, signature help, and formatting.
+/*
+Sayon's extension for VS Code. Highlighting comes from the grammar; the
+rest comes from Sayon's language server, `sayon lsp`, which this starts
+and talks to in the language server protocol itself, with no library
+between them: diagnostics, hover, definitions, references, renaming,
+completion, signature help, and formatting.
+*/
 "use strict";
 
 const vscode = require("vscode");
@@ -13,7 +15,7 @@ const path = require("path");
 
 const SELECTOR = { language: "sayon" };
 
-/// The kinds of completion items: the protocol counts from 1, VS Code from 0.
+/** The kinds of completion items: the protocol counts from 1, VS Code from 0. */
 const completionKind = (kind) => (kind ? kind - 1 : vscode.CompletionItemKind.Text);
 
 const position = (p) => new vscode.Position(p.line, p.character);
@@ -24,9 +26,11 @@ const at = (document, p) => ({
   position: { line: p.line, character: p.character },
 });
 
-/// The sayon program to run: the one the setting `sayon.path` names, or else
-/// the one on the PATH, or else the one Sayon's setup installs, which a
-/// VS Code started before the setup cannot find on its PATH.
+/**
+The sayon program to run: the one the setting `sayon.path` names, or else
+the one on the PATH, or else the one Sayon's setup installs, which a
+VS Code started before the setup cannot find on its PATH.
+*/
 function sayonProgram() {
   const setting = vscode.workspace.getConfiguration("sayon").get("path");
   if (setting && setting !== "sayon") return setting;
@@ -55,7 +59,7 @@ class Client {
     this.stopped = false;
   }
 
-  /// Starts `sayon lsp`.
+  /** Starts `sayon lsp`. */
   start() {
     const program = sayonProgram();
     this.output.appendLine(`Starting ${program} lsp`);
@@ -69,7 +73,7 @@ class Client {
       for (const { reject } of this.pending.values()) reject(problem);
       this.pending.clear();
     });
-    // Writing to a server that never started, or stopped, fails quietly.
+    /* Writing to a server that never started, or stopped, fails quietly. */
     this.process.stdin.on("error", () => {});
     this.process.on("exit", (code) => {
       for (const { reject } of this.pending.values()) reject(new Error("the server stopped"));
@@ -126,8 +130,10 @@ class Client {
     });
   }
 
-  /// Takes the server's messages out of what it wrote: headers, a blank
-  /// line, and as many bytes of JSON as the length says.
+  /**
+  Takes the server's messages out of what it wrote: headers, a blank
+  line, and as many bytes of JSON as the length says.
+  */
   receive(bytes) {
     this.buffer = Buffer.concat([this.buffer, bytes]);
     for (;;) {
@@ -160,9 +166,11 @@ class Client {
     }
   }
 
-  /// A completion item as VS Code takes it: a snippet's placeholders, the
-  /// range it replaces, the edits that come with it, such as an import, and
-  /// the parameters shown once it is in.
+  /**
+  A completion item as VS Code takes it: a snippet's placeholders, the
+  range it replaces, the edits that come with it, such as an import, and
+  the parameters shown once it is in.
+  */
   completionItem(i) {
     const item = new vscode.CompletionItem(i.label, completionKind(i.kind));
     item.detail = i.detail;
@@ -203,7 +211,7 @@ class Client {
     });
   }
 
-  /// Keeps the server's copies of the open documents the editor's.
+  /** Keeps the server's copies of the open documents the editor's. */
   watch() {
     this.subscriptions.push(
       vscode.workspace.onDidOpenTextDocument((document) => this.ready.then(() => this.open(document))),
@@ -226,7 +234,7 @@ class Client {
     );
   }
 
-  /// A request once the server is ready; nothing when it fails.
+  /** A request once the server is ready; nothing when it fails. */
   ask(method, params) {
     return this.ready.then(() => this.request(method, params)).catch(() => null);
   }
@@ -257,7 +265,7 @@ class Client {
         },
       }),
       languages.registerRenameProvider(SELECTOR, {
-        // A name that cannot be renamed is refused with the server's reason.
+        /* A name that cannot be renamed is refused with the server's reason. */
         prepareRename: async (document, p) => {
           await this.ready;
           const prepared = await this.request("textDocument/prepareRename", at(document, p));
@@ -334,7 +342,7 @@ function activate(context) {
   };
   context.subscriptions.push(
     vscode.commands.registerCommand("sayon.restartServer", restart),
-    // Another sayon program takes over at once.
+    /* Another sayon program takes over at once. */
     vscode.workspace.onDidChangeConfiguration((change) => {
       if (change.affectsConfiguration("sayon.path")) restart();
     }),

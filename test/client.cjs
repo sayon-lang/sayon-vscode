@@ -1,11 +1,13 @@
-// Runs the VS Code extension's client against `sayon lsp`, with a stand-in
-// for the part of VS Code's API it uses, as VS Code would: a document is
-// open, its diagnostics arrive, and the extension's providers answer.
-//
-//   node test/client.cjs [the sayon program] [the extension's folder]
-//
-// The program is by default the one `SAYON` names, or else `sayon` on the
-// PATH; the folder, this repository.
+/*
+Runs the VS Code extension's client against `sayon lsp`, with a stand-in
+for the part of VS Code's API it uses, as VS Code would: a document is
+open, its diagnostics arrive, and the extension's providers answer.
+
+  node test/client.cjs [the sayon program] [the extension's folder]
+
+The program is by default the one `SAYON` names, or else `sayon` on the
+PATH; the folder, this repository.
+*/
 "use strict";
 
 const Module = require("module");
@@ -190,7 +192,7 @@ function check(condition, message) {
   }
 }
 
-/// The position of the `nth` place `needle` is in `text`, `extra` on.
+/** The position of the `nth` place `needle` is in `text`, `extra` on. */
 function find(text, needle, extra = 0) {
   const offset = text.indexOf(needle) + extra;
   const before = text.slice(0, offset);
@@ -198,7 +200,7 @@ function find(text, needle, extra = 0) {
   return new Position(line, offset - (before.lastIndexOf("\n") + 1));
 }
 
-/// The diagnostics shown for a document, once they come.
+/** The diagnostics shown for a document, once they come. */
 function diagnostics(uri, wanted) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("no diagnostics came")), 60000);
@@ -267,7 +269,7 @@ async function main() {
   });
   check(refused, "renaming the standard library's names is refused");
 
-  // Typing a dot after a canvas, which the server learns of as a change.
+  /* Typing a dot after a canvas, which the server learns of as a change. */
   text = `${text}canvas.\n`;
   document.version = 2;
   for (const listener of listeners.change) listener({ document });
@@ -281,14 +283,14 @@ async function main() {
   );
   check(fill.command && fill.command.command === "editor.action.triggerParameterHints", "parameter hints after it");
 
-  // Signature help in a call's arguments, the second parameter marked.
+  /* Signature help in a call's arguments, the second parameter marked. */
   text = `${text}canvas.fill_circle(4, `;
   document.version = 3;
   for (const listener of listeners.change) listener({ document });
   const help = await providers.signatures.provideSignatureHelp(document, find(text, "fill_circle(4, ", 15));
   check(help && help.signatures[0].label.startsWith("canvas.fill_circle(x: integer"), `signature ${JSON.stringify(help)}`);
   check(help.activeParameter === 1, `the active parameter ${help.activeParameter}`);
-  // A module not imported yet comes with its import.
+  /* A module not imported yet comes with its import. */
   const names = await providers.completion.provideCompletionItems(document, new Position(9, 0));
   const strings = names.find((item) => item.label === "strings");
   check(strings && strings.additionalTextEdits.length === 1, "a standard module to import");
